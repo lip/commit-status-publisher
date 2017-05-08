@@ -17,13 +17,19 @@
 package jetbrains.buildServer.commitPublisher.github;
 
 import com.intellij.openapi.diagnostic.Logger;
+
 import jetbrains.buildServer.commitPublisher.github.ui.UpdateChangesConstants;
 import jetbrains.buildServer.serverSide.*;
 import jetbrains.buildServer.serverSide.artifacts.BuildArtifactsViewMode;
 import jetbrains.buildServer.serverSide.artifacts.BuildArtifacts;
 import jetbrains.buildServer.serverSide.artifacts.BuildArtifact;
+
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Vector;
 import java.util.regex.Pattern;
@@ -54,6 +60,12 @@ public class BuildSizeChange {
   private boolean failOnSize = false;
 
   BuildSizeChange(@NotNull Map<String, String> params) {
+	  try {
+			Files.write(Paths.get("C:\\Users\\son.nguyen\\Desktop\\test.log"), "BuildSizeChange".getBytes(), StandardOpenOption.APPEND);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
     String artifacts = params.get(C.getArtifactsKey());
     if (artifacts != null && !artifacts.isEmpty()) {
       for (String file : params.get(C.getArtifactsKey()).split("\n")) {
@@ -163,6 +175,12 @@ public class BuildSizeChange {
 
   @NotNull
   public boolean hasSizeFailure(@NotNull SBuild build) {
+	 try {
+		Files.write(Paths.get("C:\\Users\\son.nguyen\\Desktop\\test.log"), "hasSizeFailure".getBytes(), StandardOpenOption.APPEND);
+	} catch (IOException e1) {
+		// TODO Auto-generated catch block
+		e1.printStackTrace();
+	}
     if (!failOnSize) return false;
 
     calculateSizeDiff(build);
@@ -181,7 +199,7 @@ public class BuildSizeChange {
 
     final StringBuilder comment = new StringBuilder();
 
-    comment.append("Artifact size changes:\n");
+    comment.append("Artifact size changes TEST 2:\n");
     for (Map.Entry<String, SizeChange> e : artChanges.entrySet()) {
       String changeStr;
       if (e.getValue() != null) {

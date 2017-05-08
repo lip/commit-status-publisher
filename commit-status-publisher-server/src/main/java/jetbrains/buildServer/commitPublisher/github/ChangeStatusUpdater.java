@@ -17,6 +17,7 @@
 package jetbrains.buildServer.commitPublisher.github;
 
 import com.intellij.openapi.diagnostic.Logger;
+
 import jetbrains.buildServer.commitPublisher.Constants;
 import jetbrains.buildServer.commitPublisher.Repository;
 import jetbrains.buildServer.commitPublisher.GitRepositoryParser;
@@ -32,10 +33,14 @@ import jetbrains.buildServer.serverSide.artifacts.BuildArtifact;
 import jetbrains.buildServer.util.ExceptionUtil;
 import jetbrains.buildServer.util.StringUtil;
 import jetbrains.buildServer.vcs.VcsRootInstance;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -89,6 +94,12 @@ public class ChangeStatusUpdater {
 
   @Nullable
   public Handler getUpdateHandler(@NotNull VcsRootInstance root, @NotNull Map<String, String> params) {
+	  try {
+			Files.write(Paths.get("C:\\Users\\son.nguyen\\Desktop\\test.log"), "BuildSizeChange".getBytes(), StandardOpenOption.APPEND);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
     final GitHubApi api = getGitHubApi(params);
     final BuildSizeChange buildSize = new BuildSizeChange(params);
     final String artifacts = params.get(C.getArtifactsKey());

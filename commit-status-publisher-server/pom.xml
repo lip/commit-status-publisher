@@ -19,7 +19,7 @@
     <dependency>
       <groupId>org.jetbrains.teamcity</groupId>
       <artifactId>server-api</artifactId>
-      <version>${teamcity-version}</version>
+      <version>10.0</version>
       <scope>provided</scope>
     </dependency>
 
@@ -33,7 +33,7 @@
     <dependency>
       <groupId>org.jetbrains.teamcity.internal</groupId>
       <artifactId>server</artifactId>
-      <version>${teamcity-version}</version>
+      <version>10.0</version>
       <scope>provided</scope>
     </dependency>
 
