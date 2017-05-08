@@ -1,14 +1,20 @@
 package jetbrains.buildServer.commitPublisher.github;
 
 import com.intellij.openapi.diagnostic.Logger;
+
 import jetbrains.buildServer.commitPublisher.BaseCommitStatusPublisher;
 import jetbrains.buildServer.commitPublisher.Constants;
 import jetbrains.buildServer.serverSide.BuildRevision;
 import jetbrains.buildServer.serverSide.SBuild;
 import jetbrains.buildServer.serverSide.SFinishedBuild;
 import jetbrains.buildServer.serverSide.SRunningBuild;
+
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
 public class GitHubPublisher extends BaseCommitStatusPublisher {
@@ -35,18 +41,36 @@ public class GitHubPublisher extends BaseCommitStatusPublisher {
 
   @Override
   public boolean buildStarted(@NotNull SRunningBuild build, @NotNull BuildRevision revision) {
+	  try {
+			Files.write(Paths.get("C:\\Users\\son.nguyen\\Desktop\\test.log"), "buildStarted".getBytes(), StandardOpenOption.APPEND);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
     updateBuildStatus(build, revision, true);
     return true;
   }
 
   @Override
   public boolean buildFinished(@NotNull SFinishedBuild build, @NotNull BuildRevision revision) {
+	  try {
+			Files.write(Paths.get("C:\\Users\\son.nguyen\\Desktop\\test.log"), "buildFinished".getBytes(), StandardOpenOption.APPEND);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
     updateBuildStatus(build, revision, false);
     return true;
   }
 
   @Override
   public boolean buildInterrupted(@NotNull SFinishedBuild build, @NotNull BuildRevision revision) {
+	  try {
+			Files.write(Paths.get("C:\\Users\\son.nguyen\\Desktop\\test.log"), "buildInterrupted".getBytes(), StandardOpenOption.APPEND);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
     updateBuildStatus(build, revision, false);
     return true;
   }
