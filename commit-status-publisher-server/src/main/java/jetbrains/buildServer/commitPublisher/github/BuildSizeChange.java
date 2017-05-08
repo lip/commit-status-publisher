@@ -181,7 +181,7 @@ public class BuildSizeChange {
 
     final StringBuilder comment = new StringBuilder();
 
-    comment.append("Artifact size changes TEST:\n");
+    comment.append("Artifact size changes TEST 2:\n");
     for (Map.Entry<String, SizeChange> e : artChanges.entrySet()) {
       String changeStr;
       if (e.getValue() != null) {
