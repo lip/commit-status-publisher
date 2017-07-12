@@ -243,15 +243,21 @@ public class ChangeStatusUpdater {
               }
             }
 
-            if (artifacts != null && !artifacts.isEmpty()) {
-              comment.append("\n");
-              if (build.getBuildStatus() != Status.NORMAL) {
-                comment.append("Build status is not normal, not calculating artifact size\n");
-              } else {
-                comment.append(buildSize.getComment(build));
+            try {
+              String baseBranch = api.findBasePullRequestLabel(repositoryOwner, repositoryName, version.getVcsBranch());
+              if (baseBranch.equals(Constants.GITHUB_MASTER_BRANCH)) {
+                if (artifacts != null && !artifacts.isEmpty()) {
+                  comment.append("\n");
+                  if (build.getBuildStatus() != Status.NORMAL) {
+                    comment.append("Build status is not normal, not calculating artifact size\n");
+                  } else {
+                    comment.append(buildSize.getComment(build));
+                  }
+                }
               }
+            } catch (IOException e) {
+              LOG.warn("Failed to find base branch for " + version.getVcsBranch() + " for repository " + repositoryName);
             }
-
             return comment.toString();
           }
 

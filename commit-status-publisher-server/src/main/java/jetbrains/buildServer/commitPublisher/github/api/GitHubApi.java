@@ -74,6 +74,19 @@ public interface GitHubApi {
    * @return colleciton of commit parents
    * @throws IOException
    */
+  @Nullable
+  String findBasePullRequestLabel(@NotNull String repoOwner,
+                               @NotNull String repoName,
+                               @NotNull String branchName) throws IOException;
+
+  /**
+   * return parent commits for given commit
+   * @param repoOwner repo owner
+   * @param repoName repo name
+   * @param hash commit hash
+   * @return colleciton of commit parents
+   * @throws IOException
+   */
   @NotNull
   Collection<String> getCommitParents(@NotNull String repoOwner,
                                       @NotNull String repoName,
