@@ -245,7 +245,7 @@ public class ChangeStatusUpdater {
 
             try {
               String baseBranch = api.findBasePullRequestLabel(repositoryOwner, repositoryName, version.getVcsBranch());
-              if (baseBranch.equals(Constants.GITHUB_MASTER_BRANCH)) {
+              if (baseBranch != null && baseBranch.equals(Constants.GITHUB_MASTER_BRANCH)) {
                 if (artifacts != null && !artifacts.isEmpty()) {
                   comment.append("\n");
                   if (build.getBuildStatus() != Status.NORMAL) {
