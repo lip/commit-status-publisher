@@ -23,6 +23,7 @@ import jetbrains.buildServer.commitPublisher.GitRepositoryParser;
 import jetbrains.buildServer.commitPublisher.github.BuildSizeChange;
 import jetbrains.buildServer.commitPublisher.github.api.*;
 import jetbrains.buildServer.commitPublisher.github.ui.UpdateChangesConstants;
+import jetbrains.buildServer.commitPublisher.slack.*;
 import jetbrains.buildServer.messages.Status;
 import jetbrains.buildServer.serverSide.*;
 import jetbrains.buildServer.serverSide.executors.ExecutorServices;
@@ -37,7 +38,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -47,18 +50,24 @@ import java.util.concurrent.ExecutorService;
 public class ChangeStatusUpdater {
   private static final Logger LOG = Logger.getInstance(ChangeStatusUpdater.class.getName());
   private static final UpdateChangesConstants C = new UpdateChangesConstants();
+  public static Map<String, List<Long>> buildIdsByCommit = new HashMap<String, List<Long>>();
+  public static Map<String, List<String>> buildStatusByCommit = new HashMap<String, List<String>>();
+  public SlackApi slackApi = new SlackApi(Constants.SLACK_HOOK);
 
   private final ExecutorService myExecutor;
   @NotNull
   private final GitHubApiFactory myFactory;
   private final WebLinks myWeb;
+  private final BuildsManager myBuildsManager;
 
   public ChangeStatusUpdater(@NotNull final ExecutorServices services,
                              @NotNull final GitHubApiFactory factory,
-                             @NotNull final WebLinks web) {
+                             @NotNull final WebLinks web,
+                             @NotNull final BuildsManager buildsManager) {
     myFactory = factory;
     myWeb = web;
     myExecutor = services.getLowPriorityExecutorService();
+    myBuildsManager = buildsManager;
   }
 
   @NotNull
@@ -85,6 +94,36 @@ public class ChangeStatusUpdater {
       default:
         throw new IllegalArgumentException("Failed to parse authentication type:" + authenticationType);
     }
+  }
+
+  public List<Long> getBuildIdsByCommit(String hash) {
+    return buildIdsByCommit.get(hash);
+  }
+
+  public SBuild getBuildById(Long id) {
+    return myBuildsManager.findBuildInstanceById(id);
+  }
+
+  public boolean isCommitFinished(String hash) {
+    for (Long id : getBuildIdsByCommit(hash)) {
+      if (!getBuildById(id).isFinished()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public List<String> getBuildStatusByCommit(String hash) {
+    return buildStatusByCommit.get(hash);
+  }
+
+  public boolean isStatusSuccess(String hash) {
+    for (String status : getBuildStatusByCommit(hash)) {
+      if (status.contains("failure")) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @Nullable
@@ -123,6 +162,13 @@ public class ChangeStatusUpdater {
       }
 
       public void scheduleChangeStarted(@NotNull RepositoryVersion version, @NotNull SBuild build) {
+        List<Long> buildIds = new ArrayList<Long>();
+        buildIds.add(build.getBuildId());
+        if (!buildIdsByCommit.containsKey(version.getVersion())) {
+          buildIdsByCommit.put(version.getVersion(), buildIds);
+        } else {
+          buildIdsByCommit.get(version.getVersion()).add(build.getBuildId());
+        }
         scheduleChangeUpdate(version, build, "Started TeamCity Build " + build.getFullName(), GitHubChangeState.Pending);
       }
 
@@ -170,6 +216,14 @@ public class ChangeStatusUpdater {
                 "branch: " + version.getVcsBranch() + ", " +
                 "buildId: " + build.getBuildId() + ", " +
                 "status: " + status);
+
+        List<String> buildStatus = new ArrayList<String>();
+        buildStatus.add(status.getState());
+        if (!buildStatusByCommit.containsKey(version.getVersion())) {
+          buildStatusByCommit.put(version.getVersion(), buildStatus);
+        } else {
+          buildStatusByCommit.get(version.getVersion()).add(status.getState());
+        }
 
         myExecutor.submit(ExceptionUtil.catchAll("set change status on github", new Runnable() {
           @NotNull
@@ -311,6 +365,15 @@ public class ChangeStatusUpdater {
                 LOG.info("Added comment to GitHub commit: " + hash + ", buildId: " + build.getBuildId() + ", status: " + status);
               } catch (IOException e) {
                 LOG.warn("Failed add GitHub comment for branch: " + version.getVcsBranch() + ", buildId: " + build.getBuildId() + ", status: " + status + ". " + e.getMessage(), e);
+              }
+              Long lastId = getBuildIdsByCommit(hash).get(getBuildIdsByCommit(hash).size() - 1);
+              if (build.getBuildId() == lastId && isCommitFinished(hash) == true) {
+                if (isStatusSuccess(hash) == true) {
+                  slackApi.call(new SlackMessage("Github Slack Bot", "The commit " + hash + " have passed"));
+                } else {
+                  slackApi.call(new SlackMessage("Github Slack Bot", "The commit " + hash + " have failed"));
+                }
+                LOG.info("The status of commit " + hash + " have been chatted on slack");
               }
             }
           }

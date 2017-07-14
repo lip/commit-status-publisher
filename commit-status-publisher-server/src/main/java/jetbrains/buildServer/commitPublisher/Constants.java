@@ -53,6 +53,8 @@ public class Constants {
   public static final String GITLAB_API_URL = "gitlabApiUrl";
   public static final String GITLAB_TOKEN = "secure:gitlabAccessToken";
 
+  public static final String SLACK_HOOK = "https://hooks.slack.com/services/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";
+
 
   @NotNull
   public String getVcsRootIdParam() {
