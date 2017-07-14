@@ -81,8 +81,8 @@ public interface GitHubApi {
    */
   @Nullable
   String findBasePullRequestLabel(@NotNull String repoOwner,
-                               @NotNull String repoName,
-                               @NotNull String branchName) throws IOException;
+                                  @NotNull String repoName,
+                                  @NotNull String branchName) throws IOException;
 
   /**
    * return parent commits for given commit

@@ -255,9 +255,11 @@ public class ChangeStatusUpdater {
                     comment.append(buildSize.getComment(build));
                   }
                 }
+              } else {
+                comment.append("\nNot merging into master, not calculating artifact size\n");
               }
             } catch (IOException e) {
-              LOG.warn("Failed to find base branch for " + version.getVcsBranch() + " for repository " + repositoryName);
+              comment.append("Failed to calculate artifact size: " + e.getMessage());
             }
             return comment.toString();
           }
