@@ -52,6 +52,7 @@ public class ChangeStatusUpdater {
   private static final UpdateChangesConstants C = new UpdateChangesConstants();
   public static Map<String, List<Long>> buildIdsByCommit = new HashMap<String, List<Long>>();
   public static Map<String, List<String>> buildStatusByCommit = new HashMap<String, List<String>>();
+  public static Map<String, Boolean> buildFlagByCommit = new HashMap<String, Boolean>();
   public SlackApi slackApi = new SlackApi(Constants.SLACK_HOOK);
 
   private final ExecutorService myExecutor;
@@ -68,6 +69,13 @@ public class ChangeStatusUpdater {
     myWeb = web;
     myExecutor = services.getLowPriorityExecutorService();
     myBuildsManager = buildsManager;
+  }
+
+  private String getSlackServiceUriByGitUser(String username) {
+    /**
+     *This method will get the slack service link from username in github
+     */
+    return Constants.SLACK_HOOK;
   }
 
   @NotNull
@@ -168,6 +176,9 @@ public class ChangeStatusUpdater {
           buildIdsByCommit.put(version.getVersion(), buildIds);
         } else {
           buildIdsByCommit.get(version.getVersion()).add(build.getBuildId());
+        }
+        if (!buildFlagByCommit.containsKey(version.getVersion())) {
+          buildFlagByCommit.put(version.getVersion(), false);
         }
         scheduleChangeUpdate(version, build, "Started TeamCity Build " + build.getFullName(), GitHubChangeState.Pending);
       }
@@ -367,13 +378,23 @@ public class ChangeStatusUpdater {
                 LOG.warn("Failed add GitHub comment for branch: " + version.getVcsBranch() + ", buildId: " + build.getBuildId() + ", status: " + status + ". " + e.getMessage(), e);
               }
               Long lastId = getBuildIdsByCommit(hash).get(getBuildIdsByCommit(hash).size() - 1);
-              if (build.getBuildId() == lastId && isCommitFinished(hash) == true) {
-                if (isStatusSuccess(hash) == true) {
-                  slackApi.call(new SlackMessage("Github Slack Bot", "The commit " + hash + " have passed"));
-                } else {
-                  slackApi.call(new SlackMessage("Github Slack Bot", "The commit " + hash + " have failed"));
+              if (build.getBuildId() == lastId) {
+                if (buildFlagByCommit.get(hash) == false && isCommitFinished(hash) == true) {
+                  try {
+                    String gitUsername = api.findPullRequestOwner(repositoryOwner, repositoryName,
+                                                                  version.getVcsBranch());
+                    SlackApi slackApi = new SlackApi(getSlackServiceUriByGitUser(gitUsername));
+                    if (isStatusSuccess(hash) == true) {
+                      slackApi.call(new SlackMessage("Github Slack Bot", "The commit " + hash + " have passed"));
+                    } else {
+                      slackApi.call(new SlackMessage("Github Slack Bot", "The commit " + hash + " have failed"));
+                    }
+                  } catch (IOException e) {
+                    LOG.warn("Failed to find Git PR owner: " + e.getMessage());
+                  }
+                  buildFlagByCommit.put(hash, true);
+                  LOG.info("The status of commit " + hash + " have been chatted on slack");
                 }
-                LOG.info("The status of commit " + hash + " have been chatted on slack");
               }
             }
           }
