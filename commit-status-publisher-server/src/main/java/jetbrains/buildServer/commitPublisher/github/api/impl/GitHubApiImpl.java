@@ -164,12 +164,10 @@ public abstract class GitHubApiImpl implements GitHubApi {
   }
 
   @Nullable
-  public String findBasePullRequestLabel(@NotNull String repoOwner,
-                                         @NotNull String repoName,
-                                         @NotNull String branchName) throws IOException {
-
+  public String getPullRequestTitle(@NotNull String repoOwner,
+                                    @NotNull String repoName,
+                                    @NotNull String branchName) throws IOException {
     final String pullRequestId = getPullRequestId(repoName, branchName);
-
     if (pullRequestId == null) return null;
 
     //  /repos/:owner/:repo/pulls/:number
@@ -181,9 +179,9 @@ public abstract class GitHubApiImpl implements GitHubApi {
 
     final PullRequestInfo pullRequestInfo = processResponse(get, PullRequestInfo.class);
 
-    final RepoInfo base = pullRequestInfo.base;
-    if (base != null) {
-      return base.ref;
+    final RepoInfo head = pullRequestInfo.head;
+    if (head != null) {
+      return head.ref;
     }
     return null;
   }

@@ -67,23 +67,17 @@ public interface GitHubApi {
                                @NotNull String branchName) throws IOException;
 
   /**
-   * this method parses branch name and attempts to detect
-   * /refs/pull/X/head revision for given branch
-   *
-   * The main use-case for it is to resolve /refs/pull/X/merge branch
-   * into base branch in order to call github status API
-   *
-   * @param repoOwner repository owner name (who owns repo where you see pull request)
-   * @param repoName repository name (where you see pull request)
+   * return pull request title
+   * @param repoOwner repo owner
+   * @param repoName repo name
    * @param branchName detected branch name in TeamCity, i.e. /refs/pull/X/merge
-   * @return found base branch or null
-   * @throws IOException on communication error
+   * @return found head ref or null
+   * @throws IOException
    */
   @Nullable
-  String findBasePullRequestLabel(@NotNull String repoOwner,
-                                  @NotNull String repoName,
-                                  @NotNull String branchName) throws IOException;
-
+  String getPullRequestTitle(@NotNull String repoOwner,
+                              @NotNull String repoName,
+                              @NotNull String branchName) throws IOException;
   /**
    * return parent commits for given commit
    * @param repoOwner repo owner
