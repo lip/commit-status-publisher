@@ -221,10 +221,12 @@ public class ChangeStatusUpdater {
             }
             final List<String> list_jira_ticket = GetJiraTickets.getListJiraTickets(title);
             for (int i = 0; i < list_jira_ticket.size(); i++) {
-              comment.append("\n[Jira link ");
-              comment.append(list_jira_ticket.get(i));
+              String jira_link = list_jira_ticket.get(i);
+              String ticket_id = jira_link.substring(jira_link.lastIndexOf("/") + 1);
+              comment.append("\n[ ");
+              comment.append(ticket_id);
               comment.append("](");
-              comment.append(list_jira_ticket.get(i));
+              comment.append(jira_link);
               comment.append(")");
             }
 
