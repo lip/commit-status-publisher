@@ -191,6 +191,10 @@ public class ChangeStatusUpdater {
             return String.format("%02d:%02d:%02d", hour, minute, second);
           }
 
+          private String getJiraLink(@NotNull final SBuild build) {
+            return build.getParametersProvider().get("system.JIRA_LINK_CONF_NAME");
+          }
+
           @NotNull
           private String getComment(@NotNull RepositoryVersion version,
                                     @NotNull SBuild build,
@@ -219,20 +223,22 @@ public class ChangeStatusUpdater {
             } catch (IOException e) {
                 LOG.warn("Failed to find pull request title for " + vcsBranch + " for repository " + repositoryName);
             }
-            final List<String> list_jira_ticket = GetJiraTickets.getListJiraTickets(title);
-            for (int i = 0; i < list_jira_ticket.size(); i++) {
-              String jira_link = list_jira_ticket.get(i);
-              String ticket_id = jira_link.substring(jira_link.lastIndexOf("/") + 1);
-              comment.append("\n[ ");
-              comment.append(ticket_id);
-              comment.append("](");
-              comment.append(jira_link);
-              comment.append(")");
+            final String jira_link = getJiraLink(build);
+            final List<String> list_jira_ticket = GetJiraTickets.getListJiraTickets(title, jira_link);
+            if (list_jira_ticket != null) {
+              for (int i = 0; i < list_jira_ticket.size(); i++) {
+                String ticket_link = list_jira_ticket.get(i);
+                String ticket_id = ticket_link.substring(ticket_link.lastIndexOf("/") + 1).toUpperCase();
+                comment.append("[");
+                comment.append(ticket_id);
+                comment.append("](");
+                comment.append(ticket_link);
+                comment.append(")\n");
+              }
             }
-
             final String text = status.getState();
             if (text != null) {
-              comment.append("\nSummary: ");
+              comment.append("Summary: ");
               comment.append(text);
               comment.append(" Build time: ");
               comment.append(getFriendlyDuration(build.getDuration()));
