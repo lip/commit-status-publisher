@@ -214,25 +214,25 @@ public class ChangeStatusUpdater {
             comment.append("outcome was **").append(status.getState().toUpperCase()).append("**\n");
 
             final String vcsBranch = version.getVcsBranch();
-            String title = "";
+            String refBranch = "";
             try {
-                title = api.getPullRequestTitle(repositoryOwner, repositoryName, vcsBranch);
-                if (title == null) {
-                  throw new IOException("Failed to find pull request title for commit from " + vcsBranch);
+                refBranch = api.findPullRequestLabel(repositoryOwner, repositoryName, vcsBranch);
+                if (refBranch == null) {
+                  throw new IOException("Failed to find pull request label for commit from " + vcsBranch);
                 }
             } catch (IOException e) {
-                LOG.warn("Failed to find pull request title for " + vcsBranch + " for repository " + repositoryName);
+                LOG.warn("Failed to find pull request label for " + vcsBranch + " for repository " + repositoryName);
             }
-            final String jira_link = getJiraLink(build);
-            final List<String> list_jira_ticket = GetJiraTickets.getListJiraTickets(title, jira_link);
-            if (list_jira_ticket != null) {
-              for (int i = 0; i < list_jira_ticket.size(); i++) {
-                String ticket_link = list_jira_ticket.get(i);
-                String ticket_id = ticket_link.substring(ticket_link.lastIndexOf("/") + 1).toUpperCase();
+            final String jiraLink = getJiraLink(build);
+            final List<String> listJiraTicket = GetJiraTickets.getListJiraTickets(refBranch, jiraLink);
+            if (listJiraTicket != null) {
+              for (int i = 0; i < listJiraTicket.size(); i++) {
+                String ticketLink = listJiraTicket.get(i);
+                String ticketId = ticketLink.substring(ticketLink.lastIndexOf("/") + 1).toUpperCase();
                 comment.append("[");
-                comment.append(ticket_id);
+                comment.append(ticketId);
                 comment.append("](");
-                comment.append(ticket_link);
+                comment.append(ticketLink);
                 comment.append(")\n");
               }
             }

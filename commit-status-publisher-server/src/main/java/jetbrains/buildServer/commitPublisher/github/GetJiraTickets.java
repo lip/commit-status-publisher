@@ -11,40 +11,40 @@ import org.jetbrains.annotations.Nullable;
 public class GetJiraTickets {
   private static final Logger LOG = Logger.getInstance(GetJiraTickets.class.getName());
   private static final String od = "od\\d*";
-  private static final String cozmo = "coz\\d*";
+  private static final String cozmo = "cozmo\\d*";
   private static final String bi = "bi\\d*";
 
   @NotNull
-  public static List<String> getListJiraTickets(@NotNull String branch_name, 
-                                                @NotNull String jira_link) {
+  public static List<String> getListJiraTickets(@NotNull String branchName, 
+                                                @NotNull String jiraLink) {
 
-    List<String> list_jira_link = new ArrayList<String>();
-    String name = branch_name.toLowerCase().replaceAll("[^\\da-z]", "");
+    List<String> listJiraLink = new ArrayList<String>();
+    String name = branchName.toLowerCase().replaceAll("[^\\da-z]", "");
 
-    Pattern od_pattern = Pattern.compile(od);
-    Matcher od_matcher = od_pattern.matcher(name);
-    while (od_matcher.find()){
-      String od_id = od_matcher.group().replaceAll("od", jira_link + "od-");
-      list_jira_link.add(od_id);
+    Pattern odPattern = Pattern.compile(od);
+    Matcher odMatcher = odPattern.matcher(name);
+    while (odMatcher.find()){
+      String odId = odMatcher.group().replaceAll("od", jiraLink + "od-");
+      listJiraLink.add(odId);
     }
 
-    Pattern cozmo_pattern = Pattern.compile(cozmo);
-    Matcher cozmo_matcher = cozmo_pattern.matcher(name);
-    while (cozmo_matcher.find()){
-      String coz_id = cozmo_matcher.group().replaceAll("coz", jira_link + "coz-");
-      list_jira_link.add(coz_id);
+    Pattern cozmoPattern = Pattern.compile(cozmo);
+    Matcher cozmoMatcher = cozmoPattern.matcher(name);
+    while (cozmoMatcher.find()){
+      String cozmoId = cozmoMatcher.group().replaceAll("cozmo", jiraLink + "cozmo-");
+      listJiraLink.add(cozmoId);
     }
 
-    Pattern bi_pattern = Pattern.compile(bi);
-    Matcher bi_matcher = bi_pattern.matcher(name);
-    while (bi_matcher.find()) {
-      String bi_id = bi_matcher.group().replaceAll("bi", jira_link + "bi-");
-      list_jira_link.add(bi_id);
+    Pattern biPattern = Pattern.compile(bi);
+    Matcher biMatcher = biPattern.matcher(name);
+    while (biMatcher.find()) {
+      String biId = biMatcher.group().replaceAll("bi", jiraLink + "bi-");
+      listJiraLink.add(biId);
     }
-    if (!(list_jira_link.size()>0)) {
-      LOG.debug("Pull request title " + branch_name + " does not contain any ticket id");
+    if (!(listJiraLink.size()>0)) {
+      LOG.debug("Pull request title " + branchName + " does not contain any ticket id");
       return null;
     }
-    return list_jira_link;
+    return listJiraLink;
   }
 }

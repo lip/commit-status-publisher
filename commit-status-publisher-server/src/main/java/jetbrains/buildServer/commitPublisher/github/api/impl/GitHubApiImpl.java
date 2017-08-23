@@ -164,9 +164,9 @@ public abstract class GitHubApiImpl implements GitHubApi {
   }
 
   @Nullable
-  public String getPullRequestTitle(@NotNull String repoOwner,
-                                    @NotNull String repoName,
-                                    @NotNull String branchName) throws IOException {
+  public String findPullRequestLabel(@NotNull String repoOwner,
+                                     @NotNull String repoName,
+                                     @NotNull String branchName) throws IOException {
     final String pullRequestId = getPullRequestId(repoName, branchName);
     if (pullRequestId == null) return null;
 

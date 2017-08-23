@@ -67,7 +67,7 @@ public interface GitHubApi {
                                @NotNull String branchName) throws IOException;
 
   /**
-   * return pull request title
+   * return pull request label
    * @param repoOwner repo owner
    * @param repoName repo name
    * @param branchName detected branch name in TeamCity, i.e. /refs/pull/X/merge
@@ -75,7 +75,7 @@ public interface GitHubApi {
    * @throws IOException
    */
   @Nullable
-  String getPullRequestTitle(@NotNull String repoOwner,
+  String findPullRequestLabel(@NotNull String repoOwner,
                               @NotNull String repoName,
                               @NotNull String branchName) throws IOException;
 
