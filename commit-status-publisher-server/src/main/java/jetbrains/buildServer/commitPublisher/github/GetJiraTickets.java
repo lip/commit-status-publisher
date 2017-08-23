@@ -23,14 +23,14 @@ public class GetJiraTickets {
 
     Pattern odPattern = Pattern.compile(od);
     Matcher odMatcher = odPattern.matcher(name);
-    while (odMatcher.find()){
+    while (odMatcher.find()) {
       String odId = odMatcher.group().replaceAll("od", jiraLink + "od-");
       listJiraLink.add(odId);
     }
 
     Pattern cozmoPattern = Pattern.compile(cozmo);
     Matcher cozmoMatcher = cozmoPattern.matcher(name);
-    while (cozmoMatcher.find()){
+    while (cozmoMatcher.find()) {
       String cozmoId = cozmoMatcher.group().replaceAll("cozmo", jiraLink + "cozmo-");
       listJiraLink.add(cozmoId);
     }
