@@ -195,6 +195,17 @@ public class ChangeStatusUpdater {
             return build.getParametersProvider().get("system.JIRA_LINK_CONF_NAME");
           }
 
+          private StringBuilder getJiraTicketComment(@NotNull List<String> listTicketLink) {
+            StringBuilder jiraLinksComment = new StringBuilder();
+            for (int i = 0; i < listTicketLink.size(); i++) {
+              String ticketLink = listTicketLink.get(i);
+              String ticketId = ticketLink.substring(ticketLink.lastIndexOf("/") + 1).toUpperCase();
+              String commentLine = "[" + ticketId + "](" + ticketLink + ")\n";
+              jiraLinksComment.append(commentLine);
+            }
+            return jiraLinksComment;
+          }
+
           @NotNull
           private String getComment(@NotNull RepositoryVersion version,
                                     @NotNull SBuild build,
@@ -224,14 +235,10 @@ public class ChangeStatusUpdater {
                 LOG.warn("Failed to find pull request label for " + vcsBranch + " for repository " + repositoryName);
             }
             final String jiraLink = getJiraLink(build);
-            final String ticketLink = GetJiraTickets.getTicketLink(refBranch, jiraLink);
-            if (ticketLink != null) {
-              String ticketId = ticketLink.substring(ticketLink.lastIndexOf("/") + 1).toUpperCase();
-              comment.append("[");
-              comment.append(ticketId);
-              comment.append("](");
-              comment.append(ticketLink);
-              comment.append(")\n");
+            final List<String> listTicketLink = GetJiraTickets.getListTicketLink(refBranch, jiraLink);
+            if (listTicketLink != null) {
+              StringBuilder ticketLinkComment = getJiraTicketComment(listTicketLink);
+              comment.append(ticketLinkComment);
             }
             final String text = status.getState();
             if (text != null) {
