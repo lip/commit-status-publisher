@@ -168,8 +168,9 @@ public abstract class GitHubApiImpl implements GitHubApi {
                                      @NotNull String repoName,
                                      @NotNull String branchName) throws IOException {
     final String pullRequestId = getPullRequestId(repoName, branchName);
-    if (pullRequestId == null) return null;
-
+    if (pullRequestId == null) {
+      return null;
+    }
     //  /repos/:owner/:repo/pulls/:number
 
     final String requestUrl = myUrls.getPullRequestInfo(repoOwner, repoName, pullRequestId);
@@ -180,10 +181,11 @@ public abstract class GitHubApiImpl implements GitHubApi {
     final PullRequestInfo pullRequestInfo = processResponse(get, PullRequestInfo.class);
 
     final RepoInfo head = pullRequestInfo.head;
+    String label = null;
     if (head != null) {
-      return head.ref;
+      label = head.ref;
     }
-    return null;
+    return label;
   }
 
   @Nullable

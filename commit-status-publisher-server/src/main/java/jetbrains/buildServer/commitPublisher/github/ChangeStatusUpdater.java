@@ -224,17 +224,14 @@ public class ChangeStatusUpdater {
                 LOG.warn("Failed to find pull request label for " + vcsBranch + " for repository " + repositoryName);
             }
             final String jiraLink = getJiraLink(build);
-            final List<String> listJiraTicket = GetJiraTickets.getListJiraTickets(refBranch, jiraLink);
-            if (listJiraTicket != null) {
-              for (int i = 0; i < listJiraTicket.size(); i++) {
-                String ticketLink = listJiraTicket.get(i);
-                String ticketId = ticketLink.substring(ticketLink.lastIndexOf("/") + 1).toUpperCase();
-                comment.append("[");
-                comment.append(ticketId);
-                comment.append("](");
-                comment.append(ticketLink);
-                comment.append(")\n");
-              }
+            final String ticketLink = GetJiraTickets.getTicketLink(refBranch, jiraLink);
+            if (ticketLink != null) {
+              String ticketId = ticketLink.substring(ticketLink.lastIndexOf("/") + 1).toUpperCase();
+              comment.append("[");
+              comment.append(ticketId);
+              comment.append("](");
+              comment.append(ticketLink);
+              comment.append(")\n");
             }
             final String text = status.getState();
             if (text != null) {
