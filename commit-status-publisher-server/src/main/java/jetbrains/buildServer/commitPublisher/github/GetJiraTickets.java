@@ -11,26 +11,24 @@ import org.jetbrains.annotations.Nullable;
 public class GetJiraTickets {
   private static final Logger LOG = Logger.getInstance(GetJiraTickets.class.getName());
 
-  private static final String PATTERN = "\\d+";
+  private static final String PATTERN = "[- ]\\d+";
   private static final String[] PROJECT = {"od","cozmo","bi"};
 
   @NotNull
   public static List<String> getListTicketLink(@NotNull String branchName, 
                                                @NotNull String jiraLink) {
 
-    String name = branchName.toLowerCase().replaceAll("[^\\da-z]", "");
     List<String> listTicketLink = new ArrayList<String>();
     for (int i = 0; i < PROJECT.length; i++) {
       Pattern projPattern = Pattern.compile(PROJECT[i] + PATTERN);
-      Matcher projMatcher = projPattern.matcher(name);
+      Matcher projMatcher = projPattern.matcher(branchName.toLowerCase());
       while (projMatcher.find()) {
-        String ticketLink = projMatcher.group().replaceAll(PROJECT[i], jiraLink + PROJECT[i] + "-");
+        String ticketLink = jiraLink + projMatcher.group().replaceAll("[- ]","-");
         listTicketLink.add(ticketLink);
       }
     }
     if (listTicketLink.size() == 0) {
       LOG.debug("Pull request title " + branchName + " does not contain any ticket id");
-      listTicketLink = null;
     }
     return listTicketLink;
   }

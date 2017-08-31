@@ -180,10 +180,9 @@ public abstract class GitHubApiImpl implements GitHubApi {
 
     final PullRequestInfo pullRequestInfo = processResponse(get, PullRequestInfo.class);
 
-    final RepoInfo head = pullRequestInfo.head;
     String label = null;
-    if (head != null) {
-      label = head.ref;
+    if (pullRequestInfo != null) {
+      label = pullRequestInfo.title
     }
     return label;
   }

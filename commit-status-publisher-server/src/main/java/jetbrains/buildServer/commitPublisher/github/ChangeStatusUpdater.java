@@ -200,7 +200,7 @@ public class ChangeStatusUpdater {
             for (int i = 0; i < listTicketLink.size(); i++) {
               String ticketLink = listTicketLink.get(i);
               String ticketId = ticketLink.substring(ticketLink.lastIndexOf("/") + 1).toUpperCase();
-              String commentLine = "[" + ticketId + "](" + ticketLink + ")\n";
+              String commentLine = "[" + ticketId + "](" + ticketLink + ") ";
               jiraLinksComment.append(commentLine);
             }
             return jiraLinksComment;
@@ -236,7 +236,7 @@ public class ChangeStatusUpdater {
             }
             final String jiraLink = getJiraLink(build);
             final List<String> listTicketLink = GetJiraTickets.getListTicketLink(refBranch, jiraLink);
-            if (listTicketLink != null) {
+            if (listTicketLink.size() != 0) {
               StringBuilder ticketLinkComment = getJiraTicketComment(listTicketLink);
               comment.append(ticketLinkComment);
             }
