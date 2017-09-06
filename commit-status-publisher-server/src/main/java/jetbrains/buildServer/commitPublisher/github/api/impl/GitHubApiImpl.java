@@ -182,7 +182,7 @@ public abstract class GitHubApiImpl implements GitHubApi {
 
     String label = null;
     if (pullRequestInfo != null) {
-      label = pullRequestInfo.title
+      label = pullRequestInfo.title;
     }
     return label;
   }

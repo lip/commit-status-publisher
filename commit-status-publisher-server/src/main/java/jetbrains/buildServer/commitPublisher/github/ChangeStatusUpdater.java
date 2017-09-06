@@ -195,15 +195,14 @@ public class ChangeStatusUpdater {
             return build.getParametersProvider().get("system.JIRA_LINK_CONF_NAME");
           }
 
-          private StringBuilder getJiraTicketComment(@NotNull List<String> listTicketLink) {
+          private String getJiraTicketComment(@NotNull List<String> listTicketLink) {
             StringBuilder jiraLinksComment = new StringBuilder();
-            for (int i = 0; i < listTicketLink.size(); i++) {
-              String ticketLink = listTicketLink.get(i);
+            for (String ticketLink : listTicketLink) {
               String ticketId = ticketLink.substring(ticketLink.lastIndexOf("/") + 1).toUpperCase();
               String commentLine = "[" + ticketId + "](" + ticketLink + ") ";
               jiraLinksComment.append(commentLine);
             }
-            return jiraLinksComment;
+            return jiraLinksComment.toString();
           }
 
           @NotNull
@@ -237,12 +236,12 @@ public class ChangeStatusUpdater {
             final String jiraLink = getJiraLink(build);
             final List<String> listTicketLink = GetJiraTickets.getListTicketLink(refBranch, jiraLink);
             if (listTicketLink.size() != 0) {
-              StringBuilder ticketLinkComment = getJiraTicketComment(listTicketLink);
+              String ticketLinkComment = getJiraTicketComment(listTicketLink);
               comment.append(ticketLinkComment);
             }
             final String text = status.getState();
             if (text != null) {
-              comment.append("Summary: ");
+              comment.append("\nSummary: ");
               comment.append(text);
               comment.append(" Build time: ");
               comment.append(getFriendlyDuration(build.getDuration()));
