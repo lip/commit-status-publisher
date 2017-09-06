@@ -27,4 +27,6 @@ public class PullRequestInfo {
   public RepoInfo head;
   @Nullable
   public RepoInfo base;
+  @Nullable
+  public String title;
 }

@@ -164,6 +164,30 @@ public abstract class GitHubApiImpl implements GitHubApi {
   }
 
   @Nullable
+  public String findPullRequestLabel(@NotNull String repoOwner,
+                                     @NotNull String repoName,
+                                     @NotNull String branchName) throws IOException {
+    final String pullRequestId = getPullRequestId(repoName, branchName);
+    if (pullRequestId == null) {
+      return null;
+    }
+    //  /repos/:owner/:repo/pulls/:number
+
+    final String requestUrl = myUrls.getPullRequestInfo(repoOwner, repoName, pullRequestId);
+    final HttpGet get = new HttpGet(requestUrl);
+    includeAuthentication(get);
+    setDefaultHeaders(get);
+
+    final PullRequestInfo pullRequestInfo = processResponse(get, PullRequestInfo.class);
+
+    String label = null;
+    if (pullRequestInfo != null) {
+      label = pullRequestInfo.title;
+    }
+    return label;
+  }
+
+  @Nullable
   public String findBasePullRequestLabel(@NotNull String repoOwner,
                                          @NotNull String repoName,
                                          @NotNull String branchName) throws IOException {

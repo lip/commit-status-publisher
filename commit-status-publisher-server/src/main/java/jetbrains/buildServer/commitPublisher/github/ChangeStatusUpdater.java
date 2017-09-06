@@ -191,6 +191,20 @@ public class ChangeStatusUpdater {
             return String.format("%02d:%02d:%02d", hour, minute, second);
           }
 
+          private String getJiraLink(@NotNull final SBuild build) {
+            return build.getParametersProvider().get("system.JIRA_LINK_CONF_NAME");
+          }
+
+          private String getJiraTicketComment(@NotNull List<String> listTicketLink) {
+            StringBuilder jiraLinksComment = new StringBuilder();
+            for (String ticketLink : listTicketLink) {
+              String ticketId = ticketLink.substring(ticketLink.lastIndexOf("/") + 1).toUpperCase();
+              String commentLine = "[" + ticketId + "](" + ticketLink + ") ";
+              jiraLinksComment.append(commentLine);
+            }
+            return jiraLinksComment.toString();
+          }
+
           @NotNull
           private String getComment(@NotNull RepositoryVersion version,
                                     @NotNull SBuild build,
@@ -209,9 +223,25 @@ public class ChangeStatusUpdater {
 
             comment.append("outcome was **").append(status.getState().toUpperCase()).append("**\n");
 
+            final String vcsBranch = version.getVcsBranch();
+            String refBranch = "";
+            try {
+                refBranch = api.findPullRequestLabel(repositoryOwner, repositoryName, vcsBranch);
+                if (refBranch == null) {
+                  throw new IOException("Failed to find pull request label for commit from " + vcsBranch);
+                }
+            } catch (IOException e) {
+                LOG.warn("Failed to find pull request label for " + vcsBranch + " for repository " + repositoryName);
+            }
+            final String jiraLink = getJiraLink(build);
+            final List<String> listTicketLink = GetJiraTickets.getListTicketLink(refBranch, jiraLink);
+            if (listTicketLink.size() != 0) {
+              String ticketLinkComment = getJiraTicketComment(listTicketLink);
+              comment.append(ticketLinkComment);
+            }
             final String text = status.getState();
             if (text != null) {
-              comment.append("Summary: ");
+              comment.append("\nSummary: ");
               comment.append(text);
               comment.append(" Build time: ");
               comment.append(getFriendlyDuration(build.getDuration()));
